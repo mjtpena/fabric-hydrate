@@ -1,0 +1,33 @@
+# Example configuration file for fabric-hydrate
+# Copy this file to fabric-hydrate.yaml and customize for your environment
+
+# Microsoft Fabric workspace and lakehouse identifiers
+# You can find these in the Fabric portal URL or via the REST API
+workspace_id: "your-workspace-guid-here"
+lakehouse_id: "your-lakehouse-guid-here"
+
+# Tables to process
+# Each table needs a name (for the output) and a source path
+tables:
+  # Local Delta table example
+  - name: customers
+    source: "./data/delta/customers"
+    description: "Customer master data"
+
+  # OneLake Delta table example
+  - name: orders
+    source: "abfss://workspace-id@onelake.dfs.fabric.microsoft.com/lakehouse-id.Lakehouse/Tables/orders"
+    description: "Sales orders"
+
+  # ADLS Gen2 Delta table example
+  - name: products
+    source: "abfss://container@storageaccount.dfs.core.windows.net/delta/products"
+    description: "Product catalog"
+
+# Output configuration
+output:
+  # Output format: json or yaml
+  format: json
+  
+  # Directory where metadata files will be written
+  path: "./metadata"

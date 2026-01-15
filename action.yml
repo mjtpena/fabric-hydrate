@@ -1,0 +1,112 @@
+name: 'Fabric Lakehouse Metadata Hydrator'
+description: 'Extract, compare, and hydrate Microsoft Fabric Lakehouse metadata from Delta Lake schemas'
+author: 'Michael John Peña'
+
+branding:
+  icon: 'database'
+  color: 'blue'
+
+inputs:
+  workspace-id:
+    description: 'Microsoft Fabric workspace ID'
+    required: false
+  lakehouse-id:
+    description: 'Microsoft Fabric lakehouse ID'
+    required: false
+  config-path:
+    description: 'Path to fabric-hydrate configuration file'
+    required: false
+    default: './fabric-hydrate.yaml'
+  source:
+    description: 'Source Delta table path (alternative to config file)'
+    required: false
+  output-path:
+    description: 'Output directory for generated metadata'
+    required: false
+    default: './metadata'
+  dry-run:
+    description: 'Preview changes without writing files'
+    required: false
+    default: 'false'
+  python-version:
+    description: 'Python version to use'
+    required: false
+    default: '3.11'
+  command:
+    description: 'Command to run: hydrate, diff, validate, schema'
+    required: false
+    default: 'hydrate'
+
+outputs:
+  metadata-path:
+    description: 'Path to generated metadata files'
+    value: ${{ steps.hydrate.outputs.metadata-path }}
+  has-changes:
+    description: 'Whether schema differences were detected'
+    value: ${{ steps.hydrate.outputs.has-changes }}
+  diff-summary:
+    description: 'Summary of schema differences'
+    value: ${{ steps.hydrate.outputs.diff-summary }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install fabric-hydrate
+      shell: bash
+      run: |
+        pip install fabric-hydrate
+
+    - name: Run fabric-hydrate
+      id: hydrate
+      shell: bash
+      env:
+        AZURE_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        FABRIC_WORKSPACE_ID: ${{ inputs.workspace-id }}
+        FABRIC_LAKEHOUSE_ID: ${{ inputs.lakehouse-id }}
+      run: |
+        # Build command based on inputs
+        CMD="${{ inputs.command }}"
+        ARGS=""
+        
+        if [ "$CMD" == "hydrate" ]; then
+          if [ -n "${{ inputs.config-path }}" ] && [ -f "${{ inputs.config-path }}" ]; then
+            ARGS="--config ${{ inputs.config-path }}"
+          elif [ -n "${{ inputs.source }}" ]; then
+            ARGS="--source ${{ inputs.source }}"
+          fi
+          
+          ARGS="$ARGS --output ${{ inputs.output-path }}"
+          
+          if [ "${{ inputs.dry-run }}" == "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          
+        elif [ "$CMD" == "validate" ]; then
+          ARGS="${{ inputs.config-path }}"
+          
+        elif [ "$CMD" == "diff" ]; then
+          ARGS="${{ inputs.source }}"
+          if [ -n "$FABRIC_WORKSPACE_ID" ] && [ -n "$FABRIC_LAKEHOUSE_ID" ]; then
+            ARGS="$ARGS --workspace-id $FABRIC_WORKSPACE_ID --lakehouse-id $FABRIC_LAKEHOUSE_ID"
+          fi
+        fi
+        
+        echo "Running: fabric-hydrate $CMD $ARGS"
+        fabric-hydrate $CMD $ARGS
+        
+        # Set outputs
+        echo "metadata-path=${{ inputs.output-path }}" >> $GITHUB_OUTPUT
+        
+        # Check if there are generated files (for has-changes output)
+        if [ -d "${{ inputs.output-path }}" ] && [ "$(ls -A ${{ inputs.output-path }})" ]; then
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+        else
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+        fi
