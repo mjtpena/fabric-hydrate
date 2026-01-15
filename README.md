@@ -105,7 +105,9 @@ export AZURE_TENANT_ID="your-tenant-id"
 
 Then run commands as usual - the tool will automatically use service principal authentication.
 
-## 🔧 GitHub Actions
+## 🔧 CI/CD Integration
+
+### GitHub Actions
 
 ```yaml
 - name: Hydrate Fabric Metadata
@@ -117,7 +119,51 @@ Then run commands as usual - the tool will automatically use service principal a
     dry-run: true
 ```
 
-## � Production Features
+### Azure DevOps Pipelines
+
+Use the reusable template or run directly:
+
+```yaml
+# azure-pipelines.yml
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+
+  - script: |
+      pip install fabric-hydrate
+      fabric-hydrate hydrate --config fabric-hydrate.yaml --output ./metadata
+    displayName: 'Run Fabric Hydrate'
+    env:
+      AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+      AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+      AZURE_TENANT_ID: $(AZURE_TENANT_ID)
+
+  - publish: ./metadata
+    artifact: 'fabric-metadata'
+```
+
+Or use the provided template from `azure-devops/templates/fabric-hydrate.yml`:
+
+```yaml
+steps:
+  - template: azure-devops/templates/fabric-hydrate.yml
+    parameters:
+      command: 'hydrate'
+      configPath: 'fabric-hydrate.yaml'
+      workspaceId: '$(FABRIC_WORKSPACE_ID)'
+      lakehouseId: '$(FABRIC_LAKEHOUSE_ID)'
+```
+
+See [Azure DevOps README](azure-devops/README.md) for full documentation including the Azure DevOps Marketplace extension.
+
+## 🏭 Production Features
 
 ### Logging
 

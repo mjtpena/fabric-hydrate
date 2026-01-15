@@ -1,0 +1,110 @@
+# Azure Pipelines Template for Fabric Hydrate
+# This template can be used directly in your azure-pipelines.yml
+
+parameters:
+  - name: command
+    type: string
+    default: 'hydrate'
+    values:
+      - hydrate
+      - diff
+      - validate
+      - schema
+
+  - name: workspaceId
+    type: string
+    default: ''
+
+  - name: lakehouseId
+    type: string
+    default: ''
+
+  - name: configPath
+    type: string
+    default: 'fabric-hydrate.yaml'
+
+  - name: sourcePath
+    type: string
+    default: ''
+
+  - name: outputPath
+    type: string
+    default: '$(Build.ArtifactStagingDirectory)/metadata'
+
+  - name: outputFormat
+    type: string
+    default: 'yaml'
+    values:
+      - yaml
+      - json
+
+  - name: dryRun
+    type: boolean
+    default: false
+
+  - name: pythonVersion
+    type: string
+    default: '3.11'
+
+steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python ${{ parameters.pythonVersion }}'
+    inputs:
+      versionSpec: '${{ parameters.pythonVersion }}'
+      addToPath: true
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install fabric-hydrate
+    displayName: 'Install fabric-hydrate'
+
+  - script: |
+      # Build the command
+      CMD="${{ parameters.command }}"
+      ARGS=""
+
+      if [ "$CMD" == "hydrate" ]; then
+        if [ -n "${{ parameters.configPath }}" ] && [ -f "${{ parameters.configPath }}" ]; then
+          ARGS="--config ${{ parameters.configPath }}"
+        elif [ -n "${{ parameters.sourcePath }}" ]; then
+          ARGS="--source ${{ parameters.sourcePath }}"
+        fi
+        ARGS="$ARGS --output ${{ parameters.outputPath }}"
+        ARGS="$ARGS --format ${{ parameters.outputFormat }}"
+        if [ "${{ parameters.dryRun }}" == "True" ]; then
+          ARGS="$ARGS --dry-run"
+        fi
+
+      elif [ "$CMD" == "diff" ]; then
+        if [ -n "${{ parameters.sourcePath }}" ]; then
+          ARGS="${{ parameters.sourcePath }}"
+        fi
+        if [ -n "${{ parameters.workspaceId }}" ]; then
+          ARGS="$ARGS --workspace-id ${{ parameters.workspaceId }}"
+        fi
+        if [ -n "${{ parameters.lakehouseId }}" ]; then
+          ARGS="$ARGS --lakehouse-id ${{ parameters.lakehouseId }}"
+        fi
+
+      elif [ "$CMD" == "validate" ]; then
+        ARGS="${{ parameters.configPath }}"
+
+      elif [ "$CMD" == "schema" ]; then
+        ARGS="${{ parameters.sourcePath }} --format ${{ parameters.outputFormat }}"
+      fi
+
+      echo "Running: fabric-hydrate $CMD $ARGS"
+      fabric-hydrate $CMD $ARGS
+    displayName: 'Run fabric-hydrate ${{ parameters.command }}'
+    env:
+      AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+      AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+      AZURE_TENANT_ID: $(AZURE_TENANT_ID)
+      FABRIC_WORKSPACE_ID: ${{ parameters.workspaceId }}
+      FABRIC_LAKEHOUSE_ID: ${{ parameters.lakehouseId }}
+
+  - ${{ if eq(parameters.command, 'hydrate') }}:
+    - publish: ${{ parameters.outputPath }}
+      artifact: 'fabric-metadata'
+      displayName: 'Publish Metadata Artifact'
+      condition: and(succeeded(), eq('${{ parameters.dryRun }}', 'false'))

@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json.schemastore.org/vss-extension",
+  "manifestVersion": 1,
+  "id": "fabric-hydrate",
+  "name": "Fabric Lakehouse Metadata Hydrator",
+  "version": "1.0.0",
+  "publisher": "mjtpena",
+  "description": "Extract, compare, and hydrate Microsoft Fabric Lakehouse metadata from Delta Lake schemas",
+  "categories": ["Azure Pipelines"],
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "icons": {
+    "default": "images/icon.png"
+  },
+  "tags": [
+    "Microsoft Fabric",
+    "Lakehouse",
+    "Delta Lake",
+    "Metadata",
+    "Schema",
+    "Data Engineering"
+  ],
+  "content": {
+    "details": {
+      "path": "README.md"
+    }
+  },
+  "links": {
+    "home": {
+      "uri": "https://github.com/mjtpena/fabric-hydrate"
+    },
+    "repository": {
+      "uri": "https://github.com/mjtpena/fabric-hydrate"
+    },
+    "issues": {
+      "uri": "https://github.com/mjtpena/fabric-hydrate/issues"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/mjtpena/fabric-hydrate"
+  },
+  "contributions": [
+    {
+      "id": "fabric-hydrate-task",
+      "type": "ms.vss-distributed-task.task",
+      "targets": ["ms.vss-distributed-task.tasks"],
+      "properties": {
+        "name": "tasks/fabric-hydrate"
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "tasks/fabric-hydrate"
+    },
+    {
+      "path": "images",
+      "addressable": true
+    }
+  ]
+}

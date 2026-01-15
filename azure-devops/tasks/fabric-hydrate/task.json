@@ -1,0 +1,202 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "FabricHydrate",
+  "friendlyName": "Fabric Lakehouse Metadata Hydrator",
+  "description": "Extract, compare, and hydrate Microsoft Fabric Lakehouse metadata from Delta Lake schemas",
+  "author": "Michael John Peña",
+  "helpMarkDown": "[Learn more about this task](https://github.com/mjtpena/fabric-hydrate)",
+  "category": "Utility",
+  "visibility": ["Build", "Release"],
+  "runsOn": ["Agent", "DeploymentGroup"],
+  "version": {
+    "Major": 1,
+    "Minor": 0,
+    "Patch": 0
+  },
+  "instanceNameFormat": "Fabric Hydrate - $(command)",
+  "groups": [
+    {
+      "name": "authentication",
+      "displayName": "Authentication",
+      "isExpanded": true
+    },
+    {
+      "name": "fabric",
+      "displayName": "Fabric Configuration",
+      "isExpanded": true
+    },
+    {
+      "name": "advanced",
+      "displayName": "Advanced Options",
+      "isExpanded": false
+    }
+  ],
+  "inputs": [
+    {
+      "name": "command",
+      "type": "pickList",
+      "label": "Command",
+      "defaultValue": "hydrate",
+      "required": true,
+      "helpMarkDown": "The fabric-hydrate command to execute",
+      "options": {
+        "hydrate": "Hydrate - Generate metadata from Delta schemas",
+        "diff": "Diff - Compare local schema with Fabric Lakehouse",
+        "validate": "Validate - Validate configuration file",
+        "schema": "Schema - Extract schema from Delta table"
+      }
+    },
+    {
+      "name": "authType",
+      "type": "pickList",
+      "label": "Authentication Type",
+      "defaultValue": "servicePrincipal",
+      "required": true,
+      "groupName": "authentication",
+      "helpMarkDown": "Select the authentication method for Azure/Fabric",
+      "options": {
+        "servicePrincipal": "Service Principal",
+        "managedIdentity": "Managed Identity",
+        "azureCli": "Azure CLI (pre-authenticated)"
+      }
+    },
+    {
+      "name": "azureSubscription",
+      "type": "connectedService:AzureRM",
+      "label": "Azure Service Connection",
+      "required": false,
+      "groupName": "authentication",
+      "helpMarkDown": "Azure Resource Manager service connection for authentication",
+      "visibleRule": "authType = servicePrincipal"
+    },
+    {
+      "name": "tenantId",
+      "type": "string",
+      "label": "Tenant ID",
+      "required": false,
+      "groupName": "authentication",
+      "helpMarkDown": "Azure AD Tenant ID (optional if using service connection)",
+      "visibleRule": "authType = servicePrincipal"
+    },
+    {
+      "name": "clientId",
+      "type": "string",
+      "label": "Client ID",
+      "required": false,
+      "groupName": "authentication",
+      "helpMarkDown": "Service Principal Client ID (optional if using service connection)",
+      "visibleRule": "authType = servicePrincipal"
+    },
+    {
+      "name": "clientSecret",
+      "type": "string",
+      "label": "Client Secret",
+      "required": false,
+      "groupName": "authentication",
+      "helpMarkDown": "Service Principal Client Secret (use a secret variable)",
+      "visibleRule": "authType = servicePrincipal"
+    },
+    {
+      "name": "workspaceId",
+      "type": "string",
+      "label": "Workspace ID",
+      "required": false,
+      "groupName": "fabric",
+      "helpMarkDown": "Microsoft Fabric Workspace ID (GUID)"
+    },
+    {
+      "name": "lakehouseId",
+      "type": "string",
+      "label": "Lakehouse ID",
+      "required": false,
+      "groupName": "fabric",
+      "helpMarkDown": "Microsoft Fabric Lakehouse ID (GUID)"
+    },
+    {
+      "name": "configPath",
+      "type": "filePath",
+      "label": "Configuration File",
+      "defaultValue": "",
+      "required": false,
+      "groupName": "fabric",
+      "helpMarkDown": "Path to fabric-hydrate.yaml configuration file"
+    },
+    {
+      "name": "sourcePath",
+      "type": "string",
+      "label": "Source Path",
+      "required": false,
+      "groupName": "fabric",
+      "helpMarkDown": "Source Delta table path (abfss:// or local path)"
+    },
+    {
+      "name": "outputPath",
+      "type": "filePath",
+      "label": "Output Path",
+      "defaultValue": "$(Build.ArtifactStagingDirectory)/metadata",
+      "required": false,
+      "groupName": "fabric",
+      "helpMarkDown": "Output directory for generated metadata files"
+    },
+    {
+      "name": "outputFormat",
+      "type": "pickList",
+      "label": "Output Format",
+      "defaultValue": "yaml",
+      "required": false,
+      "groupName": "advanced",
+      "helpMarkDown": "Output format for generated metadata",
+      "options": {
+        "yaml": "YAML",
+        "json": "JSON"
+      }
+    },
+    {
+      "name": "dryRun",
+      "type": "boolean",
+      "label": "Dry Run",
+      "defaultValue": false,
+      "required": false,
+      "groupName": "advanced",
+      "helpMarkDown": "Preview changes without writing files"
+    },
+    {
+      "name": "verbose",
+      "type": "boolean",
+      "label": "Verbose Output",
+      "defaultValue": false,
+      "required": false,
+      "groupName": "advanced",
+      "helpMarkDown": "Enable verbose logging"
+    },
+    {
+      "name": "pythonVersion",
+      "type": "string",
+      "label": "Python Version",
+      "defaultValue": "3.11",
+      "required": false,
+      "groupName": "advanced",
+      "helpMarkDown": "Python version to use (must be pre-installed on agent)"
+    }
+  ],
+  "outputVariables": [
+    {
+      "name": "MetadataPath",
+      "description": "Path to generated metadata files"
+    },
+    {
+      "name": "HasChanges",
+      "description": "Whether schema differences were detected"
+    },
+    {
+      "name": "DiffSummary",
+      "description": "Summary of schema differences"
+    }
+  ],
+  "execution": {
+    "Node16": {
+      "target": "index.js"
+    }
+  }
+}

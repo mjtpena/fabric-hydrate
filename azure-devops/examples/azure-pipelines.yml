@@ -1,0 +1,105 @@
+# Example Azure Pipeline using Fabric Hydrate
+# Copy this file to your repository and customize as needed
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - 'data/**'
+      - 'fabric-hydrate.yaml'
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: 'fabric-credentials'  # Variable group containing Azure credentials
+  # Or define individually:
+  # - name: AZURE_CLIENT_ID
+  #   value: $(ServicePrincipalId)
+  # - name: AZURE_CLIENT_SECRET
+  #   value: $(ServicePrincipalSecret)
+  # - name: AZURE_TENANT_ID
+  #   value: $(TenantId)
+
+stages:
+  - stage: ValidateSchema
+    displayName: 'Validate Schema Configuration'
+    jobs:
+      - job: Validate
+        displayName: 'Validate Config'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.11'
+              addToPath: true
+
+          - script: |
+              pip install fabric-hydrate
+              fabric-hydrate validate fabric-hydrate.yaml
+            displayName: 'Validate Configuration'
+
+  - stage: ExtractSchema
+    displayName: 'Extract and Diff Schema'
+    dependsOn: ValidateSchema
+    condition: succeeded()
+    jobs:
+      - job: Extract
+        displayName: 'Extract Delta Schema'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.11'
+              addToPath: true
+
+          - script: |
+              pip install fabric-hydrate
+              fabric-hydrate diff \
+                --config fabric-hydrate.yaml \
+                --workspace-id $(FABRIC_WORKSPACE_ID) \
+                --lakehouse-id $(FABRIC_LAKEHOUSE_ID)
+            displayName: 'Compare Schema with Fabric'
+            env:
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_TENANT_ID: $(AZURE_TENANT_ID)
+
+  - stage: HydrateMetadata
+    displayName: 'Hydrate Metadata'
+    dependsOn: ExtractSchema
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: Hydrate
+        displayName: 'Generate Metadata Files'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.11'
+              addToPath: true
+
+          - script: |
+              pip install fabric-hydrate
+              fabric-hydrate hydrate \
+                --config fabric-hydrate.yaml \
+                --output $(Build.ArtifactStagingDirectory)/metadata \
+                --format yaml
+            displayName: 'Generate Metadata'
+            env:
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_TENANT_ID: $(AZURE_TENANT_ID)
+
+          - publish: $(Build.ArtifactStagingDirectory)/metadata
+            artifact: 'fabric-metadata'
+            displayName: 'Publish Metadata Artifact'
+
+          - script: |
+              echo "Metadata files generated:"
+              find $(Build.ArtifactStagingDirectory)/metadata -type f -name "*.yaml" | head -20
+            displayName: 'List Generated Files'

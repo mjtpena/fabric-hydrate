@@ -1,0 +1,16 @@
+{
+  "name": "fabric-hydrate-task",
+  "version": "1.0.0",
+  "description": "Azure DevOps task for Fabric Lakehouse Metadata Hydrator",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "azure-pipelines-task-lib": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
