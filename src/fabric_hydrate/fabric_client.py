@@ -114,7 +114,9 @@ class FabricAPIClient:
             f"Initialized FabricAPIClient for workspace={workspace_id}, lakehouse={lakehouse_id}"
         )
 
-    def _get_credential(self) -> ClientSecretCredential | AzureCliCredential | DefaultAzureCredential:
+    def _get_credential(
+        self,
+    ) -> ClientSecretCredential | AzureCliCredential | DefaultAzureCredential:
         """Get Azure credential based on environment.
 
         Returns:
