@@ -114,7 +114,7 @@ class FabricAPIClient:
             f"Initialized FabricAPIClient for workspace={workspace_id}, lakehouse={lakehouse_id}"
         )
 
-    def _get_credential(self) -> Any:
+    def _get_credential(self) -> ClientSecretCredential | AzureCliCredential | DefaultAzureCredential:
         """Get Azure credential based on environment.
 
         Returns:
@@ -138,19 +138,19 @@ class FabricAPIClient:
 
         # Try Azure CLI credentials first (common in dev)
         try:
-            cred = AzureCliCredential()
-            cred.get_token(self.config.scope)
+            cli_cred = AzureCliCredential()
+            cli_cred.get_token(self.config.scope)
             logger.info("Using Azure CLI authentication")
-            return cred
+            return cli_cred
         except Exception as e:
             logger.debug(f"Azure CLI auth not available: {e}")
 
         # Fall back to default credential chain
         try:
-            cred = DefaultAzureCredential()
-            cred.get_token(self.config.scope)
+            default_cred = DefaultAzureCredential()
+            default_cred.get_token(self.config.scope)
             logger.info("Using default Azure credential chain")
-            return cred
+            return default_cred
         except Exception as e:
             raise AuthenticationError(
                 "Failed to obtain Azure credentials",
@@ -168,7 +168,7 @@ class FabricAPIClient:
         """
         try:
             token = self._credential.get_token(self.config.scope)
-            return token.token
+            return str(token.token)
         except Exception as e:
             raise AuthenticationError(
                 "Failed to acquire access token",
@@ -254,7 +254,8 @@ class FabricAPIClient:
         if response.status_code == 204:
             return {}
 
-        return response.json()
+        result: dict[str, Any] = response.json()
+        return result
 
     @retry()
     def list_tables(
