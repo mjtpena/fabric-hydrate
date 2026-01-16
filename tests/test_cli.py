@@ -155,9 +155,11 @@ class TestCLI:
         assert "Error" in result.stdout
 
     def test_hydrate_with_config(
-        self, _sample_config_file: str, sample_delta_table: str, tmp_path: Path
+        self, sample_config_file: str, sample_delta_table: str, tmp_path: Path
     ) -> None:
         """Test hydrate command with config file."""
+        # sample_config_file fixture ensures config loading works
+        _ = sample_config_file  # Mark as used
         # Create config that points to the sample delta table
         # Use forward slashes for YAML compatibility
         source_path = sample_delta_table.replace("\\", "/")

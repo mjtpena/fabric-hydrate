@@ -525,7 +525,7 @@ class TestFabricAPIClientHealthCheck:
 
         client = FabricAPIClient(workspace_id="ws", credential=mock_credential)
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(AuthenticationError):
             client.health_check()
 
     @pytest.mark.asyncio
@@ -536,7 +536,7 @@ class TestFabricAPIClientHealthCheck:
 
         client = FabricAPIClient(workspace_id="ws", credential=mock_credential)
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(AuthenticationError):
             await client.health_check_async()
 
     @pytest.mark.asyncio
