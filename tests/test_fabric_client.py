@@ -362,7 +362,7 @@ class TestFabricAPIClientMethods:
             ]
         }
 
-        with patch("fabric_hydrate.fabric_client.httpx.Client") as mock_client_class:
+        with patch.object(_fc_module.httpx, "Client") as mock_client_class:
             mock_http_client = MagicMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
@@ -512,7 +512,7 @@ class TestFabricAPIClientHealthCheck:
         mock_response.status_code = 200
         mock_response.json.return_value = {"value": []}
 
-        with patch("fabric_hydrate.fabric_client.httpx.Client") as mock_client_class:
+        with patch.object(_fc_module.httpx, "Client") as mock_client_class:
             mock_http_client = MagicMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
@@ -555,7 +555,7 @@ class TestFabricAPIClientHealthCheck:
         mock_response.status_code = 200
         mock_response.json.return_value = {"value": []}
 
-        with patch("fabric_hydrate.fabric_client.httpx.AsyncClient") as mock_client_class:
+        with patch.object(_fc_module.httpx, "AsyncClient") as mock_client_class:
             mock_http_client = AsyncMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
@@ -585,7 +585,7 @@ class TestFabricAPIClientGetLakehouse:
             "workspaceId": "ws-123",
         }
 
-        with patch("fabric_hydrate.fabric_client.httpx.Client") as mock_client_class:
+        with patch.object(_fc_module.httpx, "Client") as mock_client_class:
             mock_http_client = MagicMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
@@ -617,7 +617,7 @@ class TestFabricAPIClientGetLakehouse:
             ]
         }
 
-        with patch("fabric_hydrate.fabric_client.httpx.Client") as mock_client_class:
+        with patch.object(_fc_module.httpx, "Client") as mock_client_class:
             mock_http_client = MagicMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
@@ -649,7 +649,7 @@ class TestFabricAPIClientAsyncMethods:
             ]
         }
 
-        with patch("fabric_hydrate.fabric_client.httpx.AsyncClient") as mock_client_class:
+        with patch.object(_fc_module.httpx, "AsyncClient") as mock_client_class:
             mock_http_client = AsyncMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
@@ -682,7 +682,7 @@ class TestFabricAPIClientAsyncMethods:
             "workspaceId": "ws-123",
         }
 
-        with patch("fabric_hydrate.fabric_client.httpx.AsyncClient") as mock_client_class:
+        with patch.object(_fc_module.httpx, "AsyncClient") as mock_client_class:
             mock_http_client = AsyncMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
@@ -713,7 +713,7 @@ class TestFabricAPIClientAsyncMethods:
             ]
         }
 
-        with patch("fabric_hydrate.fabric_client.httpx.AsyncClient") as mock_client_class:
+        with patch.object(_fc_module.httpx, "AsyncClient") as mock_client_class:
             mock_http_client = AsyncMock()
             mock_http_client.get.return_value = mock_response
             mock_client_class.return_value = mock_http_client
