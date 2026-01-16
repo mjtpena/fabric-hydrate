@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
+from fabric_hydrate import fabric_client as fc_module
 from fabric_hydrate.exceptions import (
     AuthenticationError,
     FabricAPIError,
@@ -104,7 +105,7 @@ class TestFabricAPIClientCredentials:
         },
         clear=False,
     )
-    @patch("fabric_hydrate.fabric_client.ClientSecretCredential")
+    @patch.object(fc_module, "ClientSecretCredential")
     def test_service_principal_credentials(self, mock_sp_class: MagicMock) -> None:
         """Test service principal credential creation."""
         mock_sp = MagicMock()
@@ -119,8 +120,8 @@ class TestFabricAPIClientCredentials:
         )
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("fabric_hydrate.fabric_client.DefaultAzureCredential")
-    @patch("fabric_hydrate.fabric_client.AzureCliCredential")
+    @patch.object(fc_module, "DefaultAzureCredential")
+    @patch.object(fc_module, "AzureCliCredential")
     def test_azure_cli_credential(
         self, mock_cli_class: MagicMock, _mock_default_class: MagicMock
     ) -> None:
@@ -134,8 +135,8 @@ class TestFabricAPIClientCredentials:
         mock_cli.get_token.assert_called()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("fabric_hydrate.fabric_client.DefaultAzureCredential")
-    @patch("fabric_hydrate.fabric_client.AzureCliCredential")
+    @patch.object(fc_module, "DefaultAzureCredential")
+    @patch.object(fc_module, "AzureCliCredential")
     def test_default_credential_fallback(
         self, mock_cli_class: MagicMock, mock_default_class: MagicMock
     ) -> None:
@@ -152,8 +153,8 @@ class TestFabricAPIClientCredentials:
         mock_default_class.assert_called_once()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch("fabric_hydrate.fabric_client.DefaultAzureCredential")
-    @patch("fabric_hydrate.fabric_client.AzureCliCredential")
+    @patch.object(fc_module, "DefaultAzureCredential")
+    @patch.object(fc_module, "AzureCliCredential")
     def test_credential_failure(
         self, mock_cli_class: MagicMock, mock_default_class: MagicMock
     ) -> None:
