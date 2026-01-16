@@ -35,9 +35,7 @@ class ColumnSchema(BaseModel):
     name: str = Field(..., description="Column name")
     type: str = Field(..., description="Data type (Delta Lake format)")
     nullable: bool = Field(True, description="Whether the column allows null values")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Additional column metadata"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional column metadata")
     description: str | None = Field(None, description="Column description")
 
     def to_fabric_type(self) -> str:
@@ -65,12 +63,8 @@ class TableMetadata(BaseModel):
 
     name: str = Field(..., description="Table name")
     location: str = Field(..., description="Table storage location (path or URI)")
-    columns: list[ColumnSchema] = Field(
-        default_factory=list, description="List of column schemas"
-    )
-    partition_columns: list[str] = Field(
-        default_factory=list, description="Partition column names"
-    )
+    columns: list[ColumnSchema] = Field(default_factory=list, description="List of column schemas")
+    partition_columns: list[str] = Field(default_factory=list, description="Partition column names")
     properties: dict[str, str] = Field(
         default_factory=dict, description="Table properties from Delta metadata"
     )
@@ -155,15 +149,11 @@ class FabricConfig(BaseModel):
 
     workspace_id: str | None = Field(None, description="Microsoft Fabric workspace ID")
     lakehouse_id: str | None = Field(None, description="Microsoft Fabric lakehouse ID")
-    tables: list[TableConfig] = Field(
-        default_factory=list, description="List of tables to process"
-    )
-    output: OutputConfig = Field(
-        default_factory=OutputConfig, description="Output configuration"
-    )
+    tables: list[TableConfig] = Field(default_factory=list, description="List of tables to process")
+    output: OutputConfig = Field(default_factory=OutputConfig, description="Output configuration")
 
     @classmethod
-    def from_yaml(cls, path: str) -> "FabricConfig":
+    def from_yaml(cls, path: str) -> FabricConfig:
         """Load configuration from a YAML file."""
         import yaml
 

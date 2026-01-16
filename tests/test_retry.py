@@ -1,8 +1,6 @@
 """Tests for retry module."""
 
-import asyncio
-import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -282,7 +280,6 @@ class TestAsyncRetryDecorator:
     async def test_async_retry_respects_rate_limit(self) -> None:
         """Test async retry respects rate limit retry-after."""
         delays: list[float] = []
-        original_sleep = asyncio.sleep
 
         async def mock_sleep(seconds: float) -> None:
             delays.append(seconds)

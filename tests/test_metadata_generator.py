@@ -1,7 +1,5 @@
 """Tests for Fabric metadata generator."""
 
-import pytest
-
 from fabric_hydrate.metadata_generator import FabricMetadataGenerator
 from fabric_hydrate.models import ColumnSchema, TableMetadata
 

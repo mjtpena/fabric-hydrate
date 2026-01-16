@@ -28,12 +28,8 @@ class FabricTableMetadata(BaseModel):
     columns: list[FabricColumnMetadata] = Field(
         default_factory=list, description="Column definitions"
     )
-    partitionBy: list[str] = Field(
-        default_factory=list, description="Partition column names"
-    )
-    properties: dict[str, Any] = Field(
-        default_factory=dict, description="Additional properties"
-    )
+    partitionBy: list[str] = Field(default_factory=list, description="Partition column names")
+    properties: dict[str, Any] = Field(default_factory=dict, description="Additional properties")
     sourceLocation: str = Field(..., description="Original source location")
     deltaVersion: int | None = Field(None, description="Delta table version")
 

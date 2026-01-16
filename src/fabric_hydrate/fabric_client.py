@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
 import os
+from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
-from typing import Any, AsyncIterator, Iterator
+from typing import Any
 
 import httpx
 from azure.identity import (
@@ -111,8 +111,7 @@ class FabricAPIClient:
         )
 
         logger.debug(
-            f"Initialized FabricAPIClient for workspace={workspace_id}, "
-            f"lakehouse={lakehouse_id}"
+            f"Initialized FabricAPIClient for workspace={workspace_id}, lakehouse={lakehouse_id}"
         )
 
     def _get_credential(self) -> Any:
@@ -463,7 +462,7 @@ class FabricAPIClient:
             self._async_client = None
         logger.debug("Closed HTTP clients (async)")
 
-    def __enter__(self) -> "FabricAPIClient":
+    def __enter__(self) -> FabricAPIClient:
         """Enter context manager."""
         return self
 
@@ -471,7 +470,7 @@ class FabricAPIClient:
         """Exit context manager."""
         self.close()
 
-    async def __aenter__(self) -> "FabricAPIClient":
+    async def __aenter__(self) -> FabricAPIClient:
         """Enter async context manager."""
         return self
 

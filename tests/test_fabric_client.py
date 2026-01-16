@@ -49,10 +49,14 @@ class TestFabricClientConfig:
 class TestFabricAPIClientInit:
     """Tests for FabricAPIClient initialization."""
 
-    @patch.dict(os.environ, {
-        "FABRIC_WORKSPACE_ID": "env-ws-id",
-        "FABRIC_LAKEHOUSE_ID": "env-lh-id",
-    }, clear=False)
+    @patch.dict(
+        os.environ,
+        {
+            "FABRIC_WORKSPACE_ID": "env-ws-id",
+            "FABRIC_LAKEHOUSE_ID": "env-lh-id",
+        },
+        clear=False,
+    )
     def test_init_from_env(self) -> None:
         """Test initialization from environment variables."""
         with patch.object(FabricAPIClient, "_get_credential") as mock_cred:
@@ -91,19 +95,23 @@ class TestFabricAPIClientInit:
 class TestFabricAPIClientCredentials:
     """Tests for credential handling."""
 
-    @patch.dict(os.environ, {
-        "AZURE_CLIENT_ID": "client-id",
-        "AZURE_CLIENT_SECRET": "secret",
-        "AZURE_TENANT_ID": "tenant-id",
-    }, clear=False)
+    @patch.dict(
+        os.environ,
+        {
+            "AZURE_CLIENT_ID": "client-id",
+            "AZURE_CLIENT_SECRET": "secret",
+            "AZURE_TENANT_ID": "tenant-id",
+        },
+        clear=False,
+    )
     @patch("fabric_hydrate.fabric_client.ClientSecretCredential")
     def test_service_principal_credentials(self, mock_sp_class: MagicMock) -> None:
         """Test service principal credential creation."""
         mock_sp = MagicMock()
         mock_sp_class.return_value = mock_sp
 
-        client = FabricAPIClient(workspace_id="ws")
-        
+        _client = FabricAPIClient(workspace_id="ws")
+
         mock_sp_class.assert_called_once_with(
             tenant_id="tenant-id",
             client_id="client-id",
@@ -114,13 +122,13 @@ class TestFabricAPIClientCredentials:
     @patch("fabric_hydrate.fabric_client.DefaultAzureCredential")
     @patch("fabric_hydrate.fabric_client.AzureCliCredential")
     def test_azure_cli_credential(
-        self, mock_cli_class: MagicMock, mock_default_class: MagicMock
+        self, mock_cli_class: MagicMock, _mock_default_class: MagicMock
     ) -> None:
         """Test Azure CLI credential fallback."""
         mock_cli = MagicMock()
         mock_cli_class.return_value = mock_cli
 
-        client = FabricAPIClient(workspace_id="ws")
+        _client = FabricAPIClient(workspace_id="ws")
 
         mock_cli_class.assert_called_once()
         mock_cli.get_token.assert_called()
@@ -139,7 +147,7 @@ class TestFabricAPIClientCredentials:
         mock_default = MagicMock()
         mock_default_class.return_value = mock_default
 
-        client = FabricAPIClient(workspace_id="ws")
+        _client = FabricAPIClient(workspace_id="ws")
 
         mock_default_class.assert_called_once()
 
@@ -335,8 +343,18 @@ class TestFabricAPIClientMethods:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "data": [
-                {"name": "table1", "type": "Delta", "location": "abfss://path/table1", "format": "delta"},
-                {"name": "table2", "type": "Delta", "location": "abfss://path/table2", "format": "delta"},
+                {
+                    "name": "table1",
+                    "type": "Delta",
+                    "location": "abfss://path/table1",
+                    "format": "delta",
+                },
+                {
+                    "name": "table2",
+                    "type": "Delta",
+                    "location": "abfss://path/table2",
+                    "format": "delta",
+                },
             ]
         }
 
@@ -376,8 +394,7 @@ class TestFabricAPIClientMethods:
         uri = client.build_onelake_uri("my_table")
 
         assert uri == (
-            "abfss://ws-123@onelake.dfs.fabric.microsoft.com/"
-            "lh-456.Lakehouse/Tables/my_table"
+            "abfss://ws-123@onelake.dfs.fabric.microsoft.com/lh-456.Lakehouse/Tables/my_table"
         )
 
     def test_build_onelake_uri_missing_ids(self) -> None:
@@ -508,7 +525,7 @@ class TestFabricAPIClientHealthCheck:
 
         client = FabricAPIClient(workspace_id="ws", credential=mock_credential)
 
-        with pytest.raises(Exception):
+        with pytest.raises(RuntimeError):
             client.health_check()
 
     @pytest.mark.asyncio
@@ -519,7 +536,7 @@ class TestFabricAPIClientHealthCheck:
 
         client = FabricAPIClient(workspace_id="ws", credential=mock_credential)
 
-        with pytest.raises(Exception):
+        with pytest.raises(RuntimeError):
             await client.health_check_async()
 
     @pytest.mark.asyncio

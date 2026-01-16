@@ -1,8 +1,5 @@
 """Tests for Pydantic models."""
 
-import pytest
-import yaml
-
 from fabric_hydrate.models import (
     ColumnDiff,
     ColumnSchema,

@@ -1,7 +1,5 @@
 """Tests for schema diff engine."""
 
-import pytest
-
 from fabric_hydrate.diff_engine import SchemaDiffEngine
 from fabric_hydrate.models import ColumnSchema, DiffType, TableMetadata
 

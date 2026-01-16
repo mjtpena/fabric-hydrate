@@ -1,7 +1,7 @@
 """Tests for Delta Lake schema reader."""
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -79,8 +79,7 @@ class TestDeltaSchemaReader:
 
         # OneLake URI
         onelake_uri = (
-            "abfss://workspace@onelake.dfs.fabric.microsoft.com/"
-            "lakehouse.Lakehouse/Tables/orders"
+            "abfss://workspace@onelake.dfs.fabric.microsoft.com/lakehouse.Lakehouse/Tables/orders"
         )
         assert reader._infer_table_name(onelake_uri, None) == "orders"
 
@@ -99,8 +98,7 @@ class TestDeltaSchemaReader:
         reader = DeltaSchemaReader()
 
         onelake_uri = (
-            "abfss://workspace@onelake.dfs.fabric.microsoft.com/"
-            "lakehouse.Lakehouse/Tables/orders/"
+            "abfss://workspace@onelake.dfs.fabric.microsoft.com/lakehouse.Lakehouse/Tables/orders/"
         )
         assert reader._infer_table_name(onelake_uri, None) == "orders"
 
@@ -108,11 +106,15 @@ class TestDeltaSchemaReader:
 class TestDeltaSchemaReaderStorageOptions:
     """Tests for storage options handling."""
 
-    @patch.dict(os.environ, {
-        "AZURE_CLIENT_ID": "client-id",
-        "AZURE_CLIENT_SECRET": "client-secret",
-        "AZURE_TENANT_ID": "tenant-id",
-    }, clear=False)
+    @patch.dict(
+        os.environ,
+        {
+            "AZURE_CLIENT_ID": "client-id",
+            "AZURE_CLIENT_SECRET": "client-secret",
+            "AZURE_TENANT_ID": "tenant-id",
+        },
+        clear=False,
+    )
     def test_service_principal_storage_options(self) -> None:
         """Test storage options with service principal credentials."""
         reader = DeltaSchemaReader()
@@ -122,9 +124,13 @@ class TestDeltaSchemaReaderStorageOptions:
         assert options["azure_client_secret"] == "client-secret"
         assert options["azure_tenant_id"] == "tenant-id"
 
-    @patch.dict(os.environ, {
-        "AZURE_STORAGE_ACCOUNT_KEY": "account-key",
-    }, clear=True)
+    @patch.dict(
+        os.environ,
+        {
+            "AZURE_STORAGE_ACCOUNT_KEY": "account-key",
+        },
+        clear=True,
+    )
     def test_account_key_storage_options(self) -> None:
         """Test storage options with account key."""
         reader = DeltaSchemaReader()

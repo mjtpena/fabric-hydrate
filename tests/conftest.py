@@ -1,14 +1,12 @@
 """Test configuration and fixtures."""
 
-import json
 import os
-import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import pyarrow as pa
 import pytest
-from deltalake import DeltaTable, write_deltalake
+from deltalake import write_deltalake
 
 from fabric_hydrate.models import ColumnSchema, TableMetadata
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -34,8 +34,8 @@ def version_callback(value: bool) -> None:
 
 @app.callback()
 def main(
-    version: Annotated[
-        Optional[bool],
+    _version: Annotated[
+        bool | None,
         typer.Option(
             "--version",
             "-v",
@@ -75,7 +75,7 @@ def schema_extract(
         typer.Argument(help="Path to Delta table (local path or OneLake URI)"),
     ],
     output: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--output",
             "-o",
@@ -166,19 +166,19 @@ def diff_command(
         typer.Argument(help="Source Delta table path"),
     ],
     target: Annotated[
-        Optional[str],
+        str | None,
         typer.Argument(help="Target Delta table path (or use --workspace-id)"),
     ] = None,
     workspace_id: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--workspace-id", "-w", help="Fabric workspace ID"),
     ] = None,
     lakehouse_id: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--lakehouse-id", "-l", help="Fabric lakehouse ID"),
     ] = None,
     table_name: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--table", "-t", help="Target table name in Fabric"),
     ] = None,
 ) -> None:
@@ -271,11 +271,11 @@ def validate_command(
 @app.command("hydrate")
 def hydrate_command(
     config_path: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option("--config", "-c", help="Path to configuration file"),
     ] = None,
     source: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--source", "-s", help="Source Delta table path"),
     ] = None,
     output_dir: Annotated[

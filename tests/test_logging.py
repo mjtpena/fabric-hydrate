@@ -2,11 +2,7 @@
 
 import json
 import logging
-from io import StringIO
 from pathlib import Path
-from unittest.mock import patch
-
-import pytest
 
 from fabric_hydrate.logging import (
     JsonFormatter,
@@ -55,10 +51,7 @@ class TestSetupLogging:
         logger = setup_logging(json_format=True)
 
         # Check that at least one handler has JsonFormatter
-        has_json_formatter = any(
-            isinstance(h.formatter, JsonFormatter)
-            for h in logger.handlers
-        )
+        has_json_formatter = any(isinstance(h.formatter, JsonFormatter) for h in logger.handlers)
         assert has_json_formatter
 
     def test_log_file(self, tmp_path: Path) -> None:
@@ -137,13 +130,14 @@ class TestJsonFormatter:
     def test_format_with_exception(self) -> None:
         """Test JSON formatting with exception info."""
         formatter = JsonFormatter()
-        
+
         try:
             raise ValueError("test error")
         except ValueError:
             import sys
+
             exc_info = sys.exc_info()
-        
+
         record = logging.LogRecord(
             name="test",
             level=logging.ERROR,
@@ -182,8 +176,14 @@ class TestJsonFormatter:
     def test_format_all_log_levels(self) -> None:
         """Test JSON formatting for all log levels."""
         formatter = JsonFormatter()
-        
-        for level in [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]:
+
+        for level in [
+            logging.DEBUG,
+            logging.INFO,
+            logging.WARNING,
+            logging.ERROR,
+            logging.CRITICAL,
+        ]:
             record = logging.LogRecord(
                 name="test",
                 level=level,

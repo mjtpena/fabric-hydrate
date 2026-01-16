@@ -3,7 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
 from typer.testing import CliRunner
 
 from fabric_hydrate.cli import app
@@ -155,7 +154,9 @@ class TestCLI:
         assert result.exit_code == 1
         assert "Error" in result.stdout
 
-    def test_hydrate_with_config(self, sample_config_file: str, sample_delta_table: str, tmp_path: Path) -> None:
+    def test_hydrate_with_config(
+        self, _sample_config_file: str, sample_delta_table: str, tmp_path: Path
+    ) -> None:
         """Test hydrate command with config file."""
         # Create config that points to the sample delta table
         # Use forward slashes for YAML compatibility
@@ -248,10 +249,12 @@ output:
 
         # Create partitioned table
         table_path = tmp_path / "partitioned_table"
-        schema = pa.schema([
-            pa.field("id", pa.int64(), nullable=False),
-            pa.field("region", pa.string(), nullable=True),
-        ])
+        schema = pa.schema(
+            [
+                pa.field("id", pa.int64(), nullable=False),
+                pa.field("region", pa.string(), nullable=True),
+            ]
+        )
         data = pa.table({"id": [1], "region": ["US"]}, schema=schema)
         write_deltalake(str(table_path), data, mode="overwrite", partition_by=["region"])
 
@@ -289,9 +292,12 @@ output:
             [
                 "diff",
                 sample_delta_table,
-                "--workspace-id", "ws-123",
-                "--lakehouse-id", "lh-456",
-                "--table", "my_table",
+                "--workspace-id",
+                "ws-123",
+                "--lakehouse-id",
+                "lh-456",
+                "--table",
+                "my_table",
             ],
         )
 

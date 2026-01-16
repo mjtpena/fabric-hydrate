@@ -175,10 +175,11 @@ class DeltaSchemaReader:
         """
         # Use string representation for type detection (works with both pyarrow and arro3)
         type_str = str(arrow_type).lower().strip()
-        
+
         # Handle arro3 format: "arro3.core.datatype<int64>" -> extract "int64"
         if "datatype<" in type_str:
             import re
+
             match = re.search(r"datatype<(.+)>", type_str)
             if match:
                 type_str = match.group(1).strip()
