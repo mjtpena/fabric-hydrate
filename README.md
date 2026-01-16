@@ -1,7 +1,7 @@
 # Fabric Lakehouse Metadata Hydrator
 
 [![CI](https://github.com/mjtpena/fabric-hydrate/actions/workflows/ci.yml/badge.svg)](https://github.com/mjtpena/fabric-hydrate/actions/workflows/ci.yml)
-[![PyPI version](https://badge.fury.io/py/fabric-hydrate.svg)](https://badge.fury.io/py/fabric-hydrate)
+[![PyPI version](https://img.shields.io/pypi/v/fabric-hydrate.svg)](https://pypi.org/project/fabric-hydrate/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
