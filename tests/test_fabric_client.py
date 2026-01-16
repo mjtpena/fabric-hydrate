@@ -1,12 +1,12 @@
 """Comprehensive tests for fabric_client module."""
 
 import os
+import sys
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
 
-from fabric_hydrate import fabric_client as fc_module
 from fabric_hydrate.exceptions import (
     AuthenticationError,
     FabricAPIError,
@@ -19,6 +19,9 @@ from fabric_hydrate.fabric_client import (
     async_fabric_client,
     fabric_client,
 )
+
+# Get the actual module for patching (sys.modules ensures we get the module, not the function)
+_fc_module = sys.modules["fabric_hydrate.fabric_client"]
 
 
 class TestFabricClientConfig:
@@ -105,7 +108,7 @@ class TestFabricAPIClientCredentials:
         },
         clear=False,
     )
-    @patch.object(fc_module, "ClientSecretCredential")
+    @patch.object(_fc_module, "ClientSecretCredential")
     def test_service_principal_credentials(self, mock_sp_class: MagicMock) -> None:
         """Test service principal credential creation."""
         mock_sp = MagicMock()
@@ -120,8 +123,8 @@ class TestFabricAPIClientCredentials:
         )
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch.object(fc_module, "DefaultAzureCredential")
-    @patch.object(fc_module, "AzureCliCredential")
+    @patch.object(_fc_module, "DefaultAzureCredential")
+    @patch.object(_fc_module, "AzureCliCredential")
     def test_azure_cli_credential(
         self, mock_cli_class: MagicMock, _mock_default_class: MagicMock
     ) -> None:
@@ -135,8 +138,8 @@ class TestFabricAPIClientCredentials:
         mock_cli.get_token.assert_called()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch.object(fc_module, "DefaultAzureCredential")
-    @patch.object(fc_module, "AzureCliCredential")
+    @patch.object(_fc_module, "DefaultAzureCredential")
+    @patch.object(_fc_module, "AzureCliCredential")
     def test_default_credential_fallback(
         self, mock_cli_class: MagicMock, mock_default_class: MagicMock
     ) -> None:
@@ -153,8 +156,8 @@ class TestFabricAPIClientCredentials:
         mock_default_class.assert_called_once()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch.object(fc_module, "DefaultAzureCredential")
-    @patch.object(fc_module, "AzureCliCredential")
+    @patch.object(_fc_module, "DefaultAzureCredential")
+    @patch.object(_fc_module, "AzureCliCredential")
     def test_credential_failure(
         self, mock_cli_class: MagicMock, mock_default_class: MagicMock
     ) -> None:
