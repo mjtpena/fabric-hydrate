@@ -161,7 +161,7 @@ class TestCLI:
         # Use forward slashes for YAML compatibility
         source_path = sample_delta_table.replace("\\", "/")
         output_path = str(tmp_path / "output").replace("\\", "/")
-        
+
         config_path = tmp_path / "config.yaml"
         config_content = f"""workspace_id: "test-workspace"
 lakehouse_id: "test-lakehouse"
@@ -270,11 +270,11 @@ output:
     def test_schema_extract_unexpected_error(self, sample_delta_table: str) -> None:
         """Test schema extract handles unexpected errors with exit code 2."""
         from unittest.mock import patch
-        
+
         # Mock the reader to raise an unexpected error (not FabricHydrateError)
         with patch("fabric_hydrate.delta_reader.DeltaSchemaReader.read_schema") as mock_read:
             mock_read.side_effect = RuntimeError("Unexpected error")
-            
+
             result = runner.invoke(app, ["schema", "extract", sample_delta_table])
 
             assert result.exit_code == 2

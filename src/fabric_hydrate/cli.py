@@ -113,10 +113,10 @@ def schema_extract(
 
     except FabricHydrateError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
     except Exception as e:
         console.print(f"[red]Unexpected error:[/red] {e}")
-        raise typer.Exit(code=2)
+        raise typer.Exit(code=2) from e
 
 
 @schema_app.command("list")
@@ -156,7 +156,7 @@ def schema_list(
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("diff")
@@ -202,11 +202,12 @@ def diff_command(
             )
             target_metadata = reader.read_schema(target_uri)
         else:
-            console.print(
+            msg = (
                 "[red]Error:[/red] Provide either a target path or "
                 "--workspace-id, --lakehouse-id, and --table"
             )
-            raise typer.Exit(code=1)
+            console.print(msg)
+            raise typer.Exit(code=1) from None
 
         result = diff_engine.compare(source_metadata, target_metadata)
 
@@ -227,7 +228,7 @@ def diff_command(
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("validate")
@@ -243,7 +244,7 @@ def validate_command(
     try:
         if not config_path.exists():
             console.print(f"[red]Error:[/red] Config file not found: {config_path}")
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from None
 
         config = FabricConfig.from_yaml(str(config_path))
 
@@ -264,7 +265,7 @@ def validate_command(
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 @app.command("hydrate")
@@ -308,7 +309,7 @@ def hydrate_command(
             tables_to_process.append((table_name, source))
         else:
             console.print("[red]Error:[/red] Provide either --config or --source")
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from None
 
         if dry_run:
             console.print("[yellow]DRY RUN[/yellow] - No files will be written\n")
@@ -331,7 +332,7 @@ def hydrate_command(
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 if __name__ == "__main__":

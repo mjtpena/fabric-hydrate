@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from fabric_hydrate.delta_reader import DeltaSchemaReader, read_delta_schema
-from fabric_hydrate.exceptions import DeltaTableError, SchemaReadError
+from fabric_hydrate.exceptions import DeltaTableError
 
 
 class TestDeltaSchemaReader:
@@ -90,14 +90,14 @@ class TestDeltaSchemaReader:
     def test_infer_table_name_remote_no_tables_dir(self) -> None:
         """Test table name inference from remote path without Tables dir."""
         reader = DeltaSchemaReader()
-        
+
         uri = "abfss://workspace@storage.dfs.core.windows.net/some/path/mytable"
         assert reader._infer_table_name(uri, None) == "mytable"
 
     def test_infer_table_name_with_trailing_slash(self) -> None:
         """Test table name inference from path with trailing slash."""
         reader = DeltaSchemaReader()
-        
+
         onelake_uri = (
             "abfss://workspace@onelake.dfs.fabric.microsoft.com/"
             "lakehouse.Lakehouse/Tables/orders/"
